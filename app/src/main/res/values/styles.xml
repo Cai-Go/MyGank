@@ -1,0 +1,24 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
+    <!--启动页的theme-->
+    <style name="AppTheme.myTheme" parent="AppTheme">
+        <item name="android:background">@drawable/splash</item>
+    </style>
+
+    <!--tab 字体样式-->
+    <style name="MyTabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textSize">@dimen/text_size_16</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--字体-->
+    <dimen name="text_size_12">12sp</dimen>
+    <dimen name="text_size_14">14sp</dimen>
+    <dimen name="text_size_16">16sp</dimen>
+    <dimen name="text_size_18">18sp</dimen>
+    <dimen name="text_size_20">20sp</dimen>
+    <dimen name="text_size_22">22sp</dimen>
+    <dimen name="text_size_24">24sp</dimen>
+
+
+    <!--边距-->
+    <dimen name="margin_4">4dp</dimen>
+    <dimen name="margin_8">8dp</dimen>
+    <dimen name="margin_16">16dp</dimen>
+    <dimen name="margin_24">24dp</dimen>
+
+    <!--宽/高-->
+    <dimen name="item_height_24">24dp</dimen>
+    <dimen name="item_height_32">32dp</dimen>
+    <dimen name="item_height_42">42dp</dimen>
+    <dimen name="item_height_48">48dp</dimen>
+    <dimen name="item_height_52">52dp</dimen>
+    <dimen name="item_height_97">97dp</dimen>
+    <dimen name="item_height_92">92dp</dimen>
+    <dimen name="item_height_200">200dp</dimen>
+    <dimen name="radius_8">8dp</dimen>
+    <dimen name="elevation_5">5dp</dimen>
+
+</resources>

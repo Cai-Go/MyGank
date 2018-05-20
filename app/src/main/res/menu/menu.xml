@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home_menu"
+        android:icon="@drawable/ic_home"
+        android:title="@string/nav_home" />
+
+    <item
+        android:id="@+id/nav_meizi_menu"
+        android:icon="@drawable/ic_mezi"
+        android:title="@string/nav_meizi" />
+
+    <item
+        android:id="@+id/nav_video_menu"
+        android:icon="@drawable/ic_video"
+        android:title="@string/nav_video" />
+
+    <!--<item-->
+        <!--android:id="@+id/nav_me_menu"-->
+        <!--android:icon="@drawable/ic_me"-->
+        <!--android:title="@string/nav_me" />-->
+    <item
+        android:id="@+id/nav_tools_menu"
+        android:icon="@drawable/ic_build"
+        android:title="@string/nav_tools" />
+</menu>
