@@ -59,7 +59,6 @@ public class MeiZiFragment extends LazyLoadBaseFragment
 
     private static MeiZiFragment meiZiFragment;
 
-    private List<MeiziData.ResultsBean> mList;
     private LinearLayoutManager mLinearLayoutManager;
     private MeiziFragmentAdapter mMeiziFragmentAdapter;
 
@@ -94,7 +93,6 @@ public class MeiZiFragment extends LazyLoadBaseFragment
     private void initView() {
         mToolbar.setTitle(title);
         mToolbar.setTitleTextColor(Color.WHITE);
-        mList = new ArrayList<>();
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mMeiziFragmentRecyclerview.setLayoutManager(mLinearLayoutManager);
         mMeiziFragmentAdapter = new MeiziFragmentAdapter();
@@ -105,13 +103,19 @@ public class MeiZiFragment extends LazyLoadBaseFragment
         mMeiziFragmentSwiprefreshlayout.setOnRefreshListener(this);
         mMeiziFragmentSwiprefreshlayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         mMeiziFragmentAdapter.setOnLoadMoreListener(this, mMeiziFragmentRecyclerview);
+
+
+
     }
 
     private void initEvents() {
         mMeiziFragmentAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                String url = mList.get(position).getUrl();
+                MeiziData.ResultsBean meizi = (MeiziData.ResultsBean) adapter.getData().get(position);
+
+                String url = meizi.getUrl();
+
                 Intent intent = new Intent(getActivity(), PhotoViewActivity.class);
                 intent.putExtra("url", url);
                 startActivity(intent);
@@ -120,8 +124,8 @@ public class MeiZiFragment extends LazyLoadBaseFragment
     }
 
     @Override
-    public void onFragmentResume() {
-        super.onFragmentResume();
+    public void onFragmentFirstVisible() {
+        super.onFragmentFirstVisible();
         mMeiziFragmentSwiprefreshlayout.setRefreshing(true);
         refresh();
     }
@@ -136,7 +140,6 @@ public class MeiZiFragment extends LazyLoadBaseFragment
                 .subscribe(new Consumer<MeiziData>() {
                     @Override
                     public void accept(MeiziData meiziData) {
-                        addList(meiziData);
                         setData(isRefresh, meiziData.getResults());
                     }
                 }, new Consumer<Throwable>() {
@@ -166,14 +169,6 @@ public class MeiZiFragment extends LazyLoadBaseFragment
 
 
     }
-
-    private void addList(MeiziData meiziData) {
-        if (meiziData.getResults() != null) {
-            mList.addAll(meiziData.getResults());
-        }
-    }
-
-
 
 
     @Override

@@ -56,8 +56,6 @@ public class GankFragment extends LazyLoadBaseFragment
     private String title;
 
 
-    private List<HomeData.ResultsBean> mHomeDataList;
-
     private LinearLayoutManager mLinearLayoutManager;
     private GankFragmentAdapter mGankFragmentAdapter;
 
@@ -93,7 +91,6 @@ public class GankFragment extends LazyLoadBaseFragment
 
 
     private void initView() {
-        mHomeDataList = new ArrayList<>();
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mGankFragmentRecyclerView.setLayoutManager(mLinearLayoutManager);
         mGankFragmentAdapter = new GankFragmentAdapter();
@@ -112,8 +109,8 @@ public class GankFragment extends LazyLoadBaseFragment
     }
 
     @Override
-    public void onFragmentResume() {
-        super.onFragmentResume();
+    public void onFragmentFirstVisible() {
+        super.onFragmentFirstVisible();
         mGankFragmentSwiprefreshLayout.setRefreshing(true);
         refresh();
     }
@@ -122,21 +119,17 @@ public class GankFragment extends LazyLoadBaseFragment
         mGankFragmentAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                id = mHomeDataList.get(position).get_id();
-                url = mHomeDataList.get(position).getUrl();
-                title = mHomeDataList.get(position).getDesc();
+                HomeData.ResultsBean resultsBean = (HomeData.ResultsBean) adapter.getData().get(position);
+
+                id = resultsBean.get_id();
+                url = resultsBean.getUrl();
+                title = resultsBean.getDesc();
                 Intent intent = WebActivity.newIntent(getActivity(), id, url, title);
                 startActivity(intent);
             }
         });
     }
 
-
-    private void addList(HomeData homeData) {
-        if (homeData.getResults() != null) {
-            mHomeDataList.addAll(homeData.getResults());
-        }
-    }
 
     @SuppressLint("CheckResult")
     private void loadGank() {
@@ -148,7 +141,7 @@ public class GankFragment extends LazyLoadBaseFragment
                 .subscribe(new Consumer<HomeData>() {
                     @Override
                     public void accept(HomeData homeData) {
-                        addList(homeData);
+
                         //绑定数据，判断是否刷新
                         setData(isRefresh, homeData.getResults());
                     }

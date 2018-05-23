@@ -65,7 +65,6 @@ public class VedioFragment extends LazyLoadBaseFragment
 
     private static VedioFragment mVedioFragment;
 
-    private List<VideoData.ResultsBean> mList;
     private LinearLayoutManager mLinearLayoutManager;
     private VideoFragmentAdapter mVideoFragmentAdapter;
 
@@ -97,8 +96,8 @@ public class VedioFragment extends LazyLoadBaseFragment
 
 
     @Override
-    public void onFragmentResume() {
-        super.onFragmentResume();
+    public void onFragmentFirstVisible() {
+        super.onFragmentFirstVisible();
         mVideoFragmentSwipeRefreshLayout.setRefreshing(true);
         refresh();
     }
@@ -106,7 +105,6 @@ public class VedioFragment extends LazyLoadBaseFragment
     private void initView() {
         mToolbar.setTitle(title);
         mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
-        mList = new ArrayList<>();
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mVideoFragmentRecyclerview.setLayoutManager(mLinearLayoutManager);
         mVideoFragmentAdapter = new VideoFragmentAdapter();
@@ -115,15 +113,19 @@ public class VedioFragment extends LazyLoadBaseFragment
         mVideoFragmentSwipeRefreshLayout.setOnRefreshListener(this);
         mVideoFragmentSwipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         mVideoFragmentAdapter.setOnLoadMoreListener(this, mVideoFragmentRecyclerview);
+
+
     }
 
     private void initEvents() {
         mVideoFragmentAdapter.setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                mId = mList.get(position).get_id();
-                mUrl = mList.get(position).getUrl();
-                mTitle = mList.get(position).getDesc();
+                VideoData.ResultsBean vedio = (VideoData.ResultsBean) adapter.getData().get(position);
+
+                mId = vedio.get_id();
+                mUrl = vedio.getUrl();
+                mTitle = vedio.getDesc();
                 Intent intent = WebActivity.newIntent(getActivity(), mId, mUrl, mTitle);
                 startActivity(intent);
             }
@@ -141,13 +143,12 @@ public class VedioFragment extends LazyLoadBaseFragment
                 .subscribe(new Consumer<VideoData>() {
                     @Override
                     public void accept(VideoData videoData) {
-                        addList(videoData);
                         setData(isRefresh, videoData.getResults());
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) {
-
+                        Log.d(TAG, "throwable" + throwable);
                     }
                 });
     }
@@ -172,11 +173,6 @@ public class VedioFragment extends LazyLoadBaseFragment
 
     }
 
-    private void addList(VideoData videoData) {
-        if (videoData.getResults() != null) {
-            mList.addAll(videoData.getResults());
-        }
-    }
 
 
     @Override
