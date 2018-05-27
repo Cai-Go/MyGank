@@ -41,6 +41,8 @@ public class GankFragment extends LazyLoadBaseFragment
 
     private static final String TAG = "GankFragment";
     private static final String TYPE = "type";
+
+
     @BindView(R.id.gank_fragment_recyclerView)
     RecyclerView mGankFragmentRecyclerView;
     @BindView(R.id.gank_fragment_swiprefreshLayout)
@@ -48,13 +50,14 @@ public class GankFragment extends LazyLoadBaseFragment
 
     private String type;
     private int page = 1;
-    private int pageSize = 10;
-    private boolean isRefresh;
+    private int pageSize = 20;
 
     private String id;
     private String url;
     private String title;
 
+
+    private List<HomeData.ResultsBean> mList;
 
     private LinearLayoutManager mLinearLayoutManager;
     private GankFragmentAdapter mGankFragmentAdapter;
@@ -91,12 +94,13 @@ public class GankFragment extends LazyLoadBaseFragment
 
 
     private void initView() {
+
+        mList = new ArrayList<>();
+
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mGankFragmentRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mGankFragmentAdapter = new GankFragmentAdapter();
+        mGankFragmentAdapter = new GankFragmentAdapter(mList);
 
-        //打开加载动画
-//        mGankFragmentAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT);
 
         mGankFragmentRecyclerView.setAdapter(mGankFragmentAdapter);
         //调用刷新
@@ -133,7 +137,7 @@ public class GankFragment extends LazyLoadBaseFragment
 
     @SuppressLint("CheckResult")
     private void loadGank() {
-        Log.d(TAG, Integer.toString(page));
+        Log.d(TAG, "页数" + page);
         RetrofitClient.getRetrofitInstance()
                 .getHomeData(type, page)
                 .subscribeOn(Schedulers.io())
@@ -142,8 +146,8 @@ public class GankFragment extends LazyLoadBaseFragment
                     @Override
                     public void accept(HomeData homeData) {
 
-                        //绑定数据，判断是否刷新
-                        setData(isRefresh, homeData.getResults());
+
+                        doData(homeData);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -154,35 +158,37 @@ public class GankFragment extends LazyLoadBaseFragment
 
     }
 
-    private void setData(boolean isRefresh, List<HomeData.ResultsBean> results) {
-        //加载页数增加
-        page++;
-        final int size = results == null ? 0 : results.size();
+    private void doData(HomeData homeData) {
 
-        /**
-         * 如果刷新，重新绑定数据
-         * 否则
-         * 如果数据大小大于0，则加入新数据
-         */
-        if (isRefresh) {
-            mGankFragmentAdapter.setNewData(results);
-        } else {
-            if (size > 0) {
-                mGankFragmentAdapter.addData(results);
-            }
+        if (null != mGankFragmentSwiprefreshLayout && mGankFragmentSwiprefreshLayout.isRefreshing()) {
+            mGankFragmentSwiprefreshLayout.setRefreshing(false);
+            mGankFragmentAdapter.setEnableLoadMore(true);
         }
 
-        /**
-         * 如果当前的数据大小
-         */
-        if (size < pageSize) {
-            //第一页如果不够一页就不显示没有更多数据布局
-            mGankFragmentAdapter.loadMoreEnd(isRefresh);
+        if (null != mGankFragmentAdapter && mGankFragmentAdapter.isLoading()) {
+            mGankFragmentSwiprefreshLayout.setEnabled(true);
+        }
+
+
+        if (page == 1) {
+            mList.clear();
+            mList.addAll(homeData.getResults());
         } else {
+            mList.addAll(homeData.getResults());
+        }
+        mGankFragmentAdapter.notifyDataSetChanged();
+
+
+        if (homeData.getResults().size() == pageSize) {
             mGankFragmentAdapter.loadMoreComplete();
+        } else if (homeData.getResults().size() < pageSize) {
+            mGankFragmentAdapter.loadMoreEnd();
         }
 
     }
+
+
+
 
 
     @Override
@@ -195,12 +201,8 @@ public class GankFragment extends LazyLoadBaseFragment
         page = 1;
         //这里的作用是防止下拉刷新的时候还可以上拉加载
         mGankFragmentAdapter.setEnableLoadMore(false);
-        isRefresh = true;
         loadGank();
-        //加载更多
-        mGankFragmentAdapter.setEnableLoadMore(true);
-        //停止刷新
-        mGankFragmentSwiprefreshLayout.setRefreshing(false);
+
     }
 
     @Override
@@ -210,8 +212,9 @@ public class GankFragment extends LazyLoadBaseFragment
     }
 
     private void loadMore() {
-        isRefresh = false;
+        page++;
         loadGank();
+        mGankFragmentSwiprefreshLayout.setEnabled(false);
     }
 
 }
