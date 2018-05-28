@@ -1,5 +1,7 @@
-我的 Gank。
-基于 Gank.io ；使用 Retrofit
+# 我的 Gank。
+基于 Gank.io;
+使用 Retrofit+RxJava;
+
 
 
 参考:
