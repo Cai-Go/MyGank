@@ -1,5 +1,7 @@
 package com.wzh.gank.mygank.model;
 
+import com.chad.library.adapter.base.entity.MultiItemEntity;
+
 import java.util.List;
 
 /**
@@ -32,7 +34,7 @@ public class HomeData {
         this.results = results;
     }
 
-    public static class ResultsBean {
+    public static class ResultsBean  {
         /**
          * _id : 59ac06be421aa901c85e6006
          * createdAt : 2017-09-03T21:42:22.920Z
@@ -46,6 +48,8 @@ public class HomeData {
          * images : ["http://img.gank.io/95075433-5796-48e0-8310-6bd9132a4988"]
          */
 
+
+
         private String _id;
         private String createdAt;
         private String desc;
@@ -56,6 +60,7 @@ public class HomeData {
         private boolean used;
         private String who;
         private List<String> images;
+
 
         public String get_id() {
             return _id;
@@ -129,12 +134,15 @@ public class HomeData {
             this.who = who;
         }
 
-        public List<String> getImages() {
+        public List<String>  getImages() {
             return images;
         }
 
         public void setImages(List<String> images) {
             this.images = images;
         }
+
+
+
     }
 }
