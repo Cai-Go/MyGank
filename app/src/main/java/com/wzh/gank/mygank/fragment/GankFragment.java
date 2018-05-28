@@ -145,8 +145,6 @@ public class GankFragment extends LazyLoadBaseFragment
                 .subscribe(new Consumer<HomeData>() {
                     @Override
                     public void accept(HomeData homeData) {
-
-
                         doData(homeData);
                     }
                 }, new Consumer<Throwable>() {

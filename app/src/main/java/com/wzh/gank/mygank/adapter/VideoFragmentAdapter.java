@@ -10,7 +10,6 @@ import com.wzh.gank.mygank.model.VideoData;
 import java.util.List;
 
 /**
- *
  * @author WZH
  * @date 2017/9/7
  */
@@ -18,10 +17,9 @@ import java.util.List;
 public class VideoFragmentAdapter extends BaseQuickAdapter<VideoData.ResultsBean, BaseViewHolder> {
 
 
-    public VideoFragmentAdapter() {
-        super(R.layout.vedio_fragment_item, null);
+    public VideoFragmentAdapter(@Nullable List<VideoData.ResultsBean> data) {
+        super(R.layout.vedio_fragment_item, data);
     }
-
 
     @Override
     protected void convert(BaseViewHolder helper, VideoData.ResultsBean item) {

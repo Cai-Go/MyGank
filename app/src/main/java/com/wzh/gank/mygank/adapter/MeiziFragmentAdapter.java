@@ -1,5 +1,6 @@
 package com.wzh.gank.mygank.adapter;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -9,6 +10,8 @@ import com.wzh.gank.mygank.R;
 import com.wzh.gank.mygank.model.MeiziData;
 import com.wzh.gank.mygank.utils.GlideUtils;
 
+import java.util.List;
+
 /**
  *
  * @author WZH
@@ -17,10 +20,10 @@ import com.wzh.gank.mygank.utils.GlideUtils;
 
 public class MeiziFragmentAdapter extends BaseQuickAdapter<MeiziData.ResultsBean, BaseViewHolder> {
 
-    public MeiziFragmentAdapter() {
-        super(R.layout.meiziz_fragment_item, null);
-    }
 
+    public MeiziFragmentAdapter(@Nullable List<MeiziData.ResultsBean> data) {
+        super(R.layout.meiziz_fragment_item,data);
+    }
 
     @Override
     protected void convert(BaseViewHolder helper, MeiziData.ResultsBean item) {

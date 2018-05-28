@@ -43,7 +43,6 @@ public class MeiZiFragment extends LazyLoadBaseFragment
     RecyclerView mMeiziFragmentRecyclerview;
     @BindView(R.id.meizi_fragment_swiprefreshlayout)
     SwipeRefreshLayout mMeiziFragmentSwiprefreshlayout;
-//    Unbinder unbinder;
 
 
     private static final String TAG = "MeiZiFragment";
@@ -53,9 +52,10 @@ public class MeiZiFragment extends LazyLoadBaseFragment
     private int page = 1;
     private int pageSize = 10;
 
-    private boolean isRefresh;
 
     private String title;
+
+    private List<MeiziData.ResultsBean> mList;
 
     private static MeiZiFragment meiZiFragment;
 
@@ -91,19 +91,19 @@ public class MeiZiFragment extends LazyLoadBaseFragment
 
 
     private void initView() {
+
+        mList = new ArrayList<>();
+
         mToolbar.setTitle(title);
         mToolbar.setTitleTextColor(Color.WHITE);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mMeiziFragmentRecyclerview.setLayoutManager(mLinearLayoutManager);
-        mMeiziFragmentAdapter = new MeiziFragmentAdapter();
-        //打开加载动画
-//        mMeiziFragmentAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT);
+        mMeiziFragmentAdapter = new MeiziFragmentAdapter(mList);
         mMeiziFragmentRecyclerview.setAdapter(mMeiziFragmentAdapter);
 
         mMeiziFragmentSwiprefreshlayout.setOnRefreshListener(this);
         mMeiziFragmentSwiprefreshlayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         mMeiziFragmentAdapter.setOnLoadMoreListener(this, mMeiziFragmentRecyclerview);
-
 
 
     }
@@ -140,7 +140,7 @@ public class MeiZiFragment extends LazyLoadBaseFragment
                 .subscribe(new Consumer<MeiziData>() {
                     @Override
                     public void accept(MeiziData meiziData) {
-                        setData(isRefresh, meiziData.getResults());
+                        doData(meiziData);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -150,23 +150,29 @@ public class MeiZiFragment extends LazyLoadBaseFragment
                 });
     }
 
-    private void setData(boolean isRefresh, List<MeiziData.ResultsBean> results) {
-        page++;
-        final int size = results == null ? 0 : results.size();
-        if (isRefresh) {
-            mMeiziFragmentAdapter.setNewData(results);
-        } else {
-            if (size > 0) {
-                mMeiziFragmentAdapter.addData(results);
-            }
+    private void doData(MeiziData meiziData) {
+        if (null != mMeiziFragmentSwiprefreshlayout && mMeiziFragmentSwiprefreshlayout.isRefreshing()) {
+            mMeiziFragmentSwiprefreshlayout.setRefreshing(false);
+            mMeiziFragmentAdapter.setEnableLoadMore(true);
         }
 
-        if (size < pageSize) {
-            mMeiziFragmentAdapter.loadMoreEnd(isRefresh);
+        if (null != mMeiziFragmentAdapter && mMeiziFragmentAdapter.isLoading()) {
+            mMeiziFragmentSwiprefreshlayout.setEnabled(true);
+        }
+        if (page == 1) {
+            mList.clear();
+            mList.addAll(meiziData.getResults());
         } else {
+            mList.addAll(meiziData.getResults());
+        }
+        mMeiziFragmentAdapter.notifyDataSetChanged();
+
+
+        if (meiziData.getResults().size() == pageSize) {
             mMeiziFragmentAdapter.loadMoreComplete();
+        } else if (meiziData.getResults().size() < pageSize) {
+            mMeiziFragmentAdapter.loadMoreEnd();
         }
-
 
     }
 
@@ -179,10 +185,7 @@ public class MeiZiFragment extends LazyLoadBaseFragment
     private void refresh() {
         page = 1;
         mMeiziFragmentAdapter.setEnableLoadMore(false);
-        isRefresh = true;
         loadMeizi();
-        mMeiziFragmentAdapter.setEnableLoadMore(true);
-        mMeiziFragmentSwiprefreshlayout.setRefreshing(false);
     }
 
     @Override
@@ -191,7 +194,8 @@ public class MeiZiFragment extends LazyLoadBaseFragment
     }
 
     private void loadMore() {
-        isRefresh = false;
+        page++;
         loadMeizi();
+        mMeiziFragmentSwiprefreshlayout.setEnabled(false);
     }
 }

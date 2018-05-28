@@ -55,12 +55,13 @@ public class VedioFragment extends LazyLoadBaseFragment
     private int page = 1;
     private int pageSize = 10;
 
-    private boolean isRefresh;
     private String title;
 
     private String mId;
     private String mUrl;
     private String mTitle;
+
+    private List<VideoData.ResultsBean> mList;
 
 
     private static VedioFragment mVedioFragment;
@@ -103,11 +104,14 @@ public class VedioFragment extends LazyLoadBaseFragment
     }
 
     private void initView() {
+
+        mList = new ArrayList<>();
+
         mToolbar.setTitle(title);
         mToolbar.setTitleTextColor(getResources().getColor(R.color.white));
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mVideoFragmentRecyclerview.setLayoutManager(mLinearLayoutManager);
-        mVideoFragmentAdapter = new VideoFragmentAdapter();
+        mVideoFragmentAdapter = new VideoFragmentAdapter(mList);
         mVideoFragmentRecyclerview.setAdapter(mVideoFragmentAdapter);
 
         mVideoFragmentSwipeRefreshLayout.setOnRefreshListener(this);
@@ -143,7 +147,7 @@ public class VedioFragment extends LazyLoadBaseFragment
                 .subscribe(new Consumer<VideoData>() {
                     @Override
                     public void accept(VideoData videoData) {
-                        setData(isRefresh, videoData.getResults());
+                        doData(videoData);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -153,26 +157,30 @@ public class VedioFragment extends LazyLoadBaseFragment
                 });
     }
 
-    private void setData(boolean isRefresh, List<VideoData.ResultsBean> results) {
-        page++;
-        final int size = results == null ? 0 : results.size();
-
-        if (isRefresh) {
-            mVideoFragmentAdapter.setNewData(results);
-        } else {
-            if (size > 0) {
-                mVideoFragmentAdapter.addData(results);
-            }
+    private void doData(VideoData videoData) {
+        if (null != mVideoFragmentSwipeRefreshLayout && mVideoFragmentSwipeRefreshLayout.isRefreshing()) {
+            mVideoFragmentSwipeRefreshLayout.setRefreshing(false);
+            mVideoFragmentAdapter.setEnableLoadMore(true);
         }
 
-        if (size < pageSize) {
-            mVideoFragmentAdapter.loadMoreEnd(isRefresh);
+        if (null != mVideoFragmentAdapter && mVideoFragmentAdapter.isLoading()) {
+            mVideoFragmentSwipeRefreshLayout.setEnabled(true);
+        }
+        if (page == 1) {
+            mList.clear();
+            mList.addAll(videoData.getResults());
         } else {
+            mList.addAll(videoData.getResults());
+        }
+        mVideoFragmentAdapter.notifyDataSetChanged();
+
+        if (videoData.getResults().size() == pageSize) {
             mVideoFragmentAdapter.loadMoreComplete();
+        } else if (videoData.getResults().size() < pageSize) {
+            mVideoFragmentAdapter.loadMoreEnd();
         }
 
     }
-
 
 
     @Override
@@ -184,10 +192,7 @@ public class VedioFragment extends LazyLoadBaseFragment
         //停止加载更多
         mVideoFragmentAdapter.setEnableLoadMore(false);
         page = 1;
-        isRefresh = true;
         loadVideo();
-        mVideoFragmentAdapter.setEnableLoadMore(true);
-        mVideoFragmentSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -196,7 +201,8 @@ public class VedioFragment extends LazyLoadBaseFragment
     }
 
     private void loadMore() {
-        isRefresh = false;
+        page++;
         loadVideo();
+        mVideoFragmentSwipeRefreshLayout.setEnabled(false);
     }
 }
